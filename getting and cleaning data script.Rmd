@@ -1,0 +1,115 @@
+Getting and cleaning data project
+========================================================
+
+Required packages
+```{r}
+library(reshape2)
+library(plyr)
+```
+
+
+```{r}
+setwd("C:/Users/Jonno/Documents/R/Getting and cleaning data")
+```
+
+import the features list, remove the hyphens (-) and the brackets from the names and convert to a more "Camel" type variable namingin conventions
+```{r}
+features <- read.table("features.txt")
+#remove brackets
+features[,2] <- gsub("\\(\\)","",features[,2])
+
+# Remove commas which are surrounded by numbers
+commaSub <- grepl("[0-9],[0-9]",features[,2])
+features[commaSub,2] <- gsub(",","to",features[commaSub,2])
+
+#Remove remaining commas
+features[,2] <- gsub(",","",features[,2])
+
+#Remove Hyphens and make sure the first letter of the next word is upper case
+
+#function totally half inched from Tyler Rinker on stackoverflow http://stackoverflow.com/questions/11672050/how-to-convert-not-camel-case-to-camelcase-in-r#_=_
+
+camel <- function(x){ #function for camel case
+    capit <- function(x) paste0(toupper(substring(x, 1, 1)), substring(x, 2, nchar(x)))
+    cam <- function(x) paste(capit(x), collapse="")
+    t2 <- strsplit(x, "-")
+    sapply(t2, cam)
+}
+
+features[,2] <-camel(features[,2])
+
+#Remove remaining braces
+brackets <- grepl("Angle\\(",features[,2])
+features[brackets,2] <- paste(sub("Angle\\(", "", features[brackets,2]), "Angles", sep="")
+features[,2] <- gsub("\\)","", features[,2])
+```
+
+Import the training set
+```{r}
+setwd("./train")
+subject.train <- read.table("subject_train.txt")
+x.train <- read.table("X_train.txt")
+y.train <- read.table("Y_train.txt")
+```
+
+
+Import the test data from working directory
+```{r}
+setwd("../")
+setwd("./test")
+subject.test <- read.table("subject_test.txt")
+x.test <- read.table("X_test.txt")
+y.test <- read.table("Y_test.txt")
+```
+
+
+```{r}
+colnames(x.train) <- features[,2]
+colnames(y.train) <- "ActivityType"
+colnames(subject.train) <- "SubjectId"
+train.set <- cbind(y.train, x.train, subject.train)
+names(train.set)
+```
+
+
+Make test dataframe
+```{r}
+colnames(x.test) <- features[,2]
+colnames(y.test) <- "ActivityType"
+colnames(subject.test) <- "SubjectId"
+test.set <- cbind(y.test, x.test, subject.test)
+names(test.set)
+```
+
+
+Combine both dataframes together into 1 data frame and swap the activity names for ones that are descriptive
+```{r}
+whole.set <- rbind(train.set, test.set)
+swap <- match(whole.set[,1], seq(1,6))
+activity <- c("Walking", "Walking Upstairs", "Walking Downstairs", "Sitting", "Standing", "Laying")
+whole.set[which(!is.na(swap)),1] <- activity[na.omit(swap)]
+```
+
+Extract all lines which are related to the mean or Standard deviation
+```{r}
+## creat a logical vector thet finds all references to mean or standard deviation, the rbind ensures that the activity column and the ID column are also inlcuded
+measurements <- c(TRUE,grepl("[Mm]ean|[Ss]([Tt])[Dd]", features[,2]),TRUE)
+mean.sd <- whole.set[,measurements]
+```
+
+create a dataframe of all the means of all the variables split by activity type and subject
+```{r}
+mean.sd.melt <- melt(data = mean.sd, id.vars = c("ActivityType", "SubjectId") )
+mean.sd <-aggregate(value~., data=mean.sd.melt, mean) 
+mean.sd <- dcast(mean.sd, ActivityType + SubjectId ~ variable ,value.var="value")
+setwd("../")
+write.table(mean.sd, "Summary of mean and Std data.txt", sep = ",")
+```
+
+PCA
+```{r}
+PCA.x.test <-princomp(x.test, cor= TRUE)
+plot(PCA.x.test, type= "lines")
+summary(PCA.x.test)
+```
+
