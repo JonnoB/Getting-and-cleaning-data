@@ -9,7 +9,7 @@ library(plyr)
 
 
 ```{r}
-setwd("C:/Users/Jonno/Documents/R/Getting and cleaning data")
+
 ```
 
 import the features list, remove the hyphens (-) and the brackets from the names and convert to a more "Camel" type variable namingin conventions
