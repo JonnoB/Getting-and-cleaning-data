@@ -1,0 +1,46 @@
+﻿Code Book
+=================
+
+
+This code book is a modified version of the code book provided in the original documentation. 
+The only differences are that the non relevant variables have been removed for ease of
+understanding, and the variable names edited to reflect the names which are in the file.
+
+
+The signals recorded were
+
+
+tBodyAccXYZ
+tGravityAccXYZ
+tBodyAccJerkXYZ
+tBodyGyroXYZ
+tBodyGyroJerkXYZ
+tBodyAccMag
+tGravityAccMag
+tBodyAccJerkMag
+tBodyGyroMag
+tBodyGyroJerkMag
+fBodyAccXYZ
+fBodyAccJerkXYZ
+fBodyGyroXYZ
+fBodyAccMag
+fBodyAccJerkMag
+fBodyGyroMag
+fBodyGyroJerkMag
+
+
+The set of variables that were estimated from these signals are: 
+
+
+mean: Mean value
+std: Standard deviation
+
+
+Additional vectors obtained by averaging the signals in a signal window sample. These are used on the variableAngle:
+
+
+gravityMean
+tBodyAccMean
+tBodyAccJerkMean
+tBodyGyroMean
+tBodyGyroJerkMean
